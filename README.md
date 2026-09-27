@@ -147,6 +147,15 @@ merging and a token budget are off until you turn them on in `.axial/dev.toml`;
 `axial dev doctor` shows what is configured, including which runtime reviews
 whose work.
 
+## Guides
+
+- [Add a teammate](docs/add-a-teammate.md) — invite someone, and what they do on their side
+- [Run the dev loop on your repository](docs/dev-loop-quickstart.md) — set up the runtimes, declare the loop, and run it
+- [Prompting an agent that uses axial](docs/prompting-an-agent.md)
+- [Glossary](docs/GLOSSARY.md) — one definition per word
+
+These are published with every release, so they match the latest version.
+
 ## Everyday commands
 
 | Command | What it does |
