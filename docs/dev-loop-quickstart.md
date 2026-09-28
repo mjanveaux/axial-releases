@@ -62,12 +62,12 @@ pi needs more, because axial builds its sandbox and its tracker connection
 itself:
 
 ```toml
-pi_path = "/opt/pi-0.84.3/pi"              # the pi binary (there is no AXIAL_PI_BINARY)
+pi_path = "/opt/pi-0.87.1/pi"              # the pi binary (there is no AXIAL_PI_BINARY)
 pi_agent_dir = "/home/you/.pi/agent"       # optional; pi's account directory
 pi_mcp_adapter_path = "/opt/pi-mcp-adapter" # a pi-mcp-adapter 2.21.1 checkout (contains index.ts)
 ```
 
-- Only tested pi versions run: **0.84.2 and 0.84.3**. A newer pi is refused
+- Only tested pi versions run: **0.84.2, 0.84.3 and 0.87.1**. A newer pi is refused
   until it has been re-tested against axial, and there is deliberately no
   override. Keep a supported version and point `pi_path` at it.
 - pi has no built-in MCP client, so `pi_mcp_adapter_path` is required: it is
@@ -122,6 +122,16 @@ axial dev resolve review
 **relative**, like the `../<repo>-worktrees` that `dev init` writes. An
 absolute path such as `/home/you/...` only works on one machine.
 
+**Using a non-GitHub forge**
+
+The loop reaches the forge only through a program named `gh`, and only through
+a fixed set of calls — the forge command contract, `forge-cli/1` (SPEC §36):
+opening and reading pull requests, draft/ready, a commit status, a comment,
+and the merge. For Gitea or Forgejo, put a stand-in named `gh` first on `PATH`
+that answers those calls from your forge's API; pull request links in either
+`…/pull/N` or `…/pulls/N` form work. A stand-in that satisfies the contract is
+supported; anything it does beyond the contract is up to it.
+
 ## 2. Declare the loop for this repository
 
 ```bash
@@ -152,6 +162,13 @@ commands = ["npm ci:*", "npm run build:*", "npm test:*"]
 checks = ["ci/test"]
 ```
 
+`commands` and `checks` answer different questions. `commands` is permission:
+what a worker may run to check its own work. `checks` is evidence: the names of
+the CI checks on a pull request — as GitHub shows them under the PR's checks —
+that the supervisor may see passing for the exact commit. Until you declare
+`checks`, `dev doctor` warns, every review says verification was not observed,
+and a person has to run the gates before merging.
+
 Leave `[review]` and `[merge]` out to begin with: the loop then opens pull
 requests and never merges, and you review and merge them yourself. Add them
 later (SPEC §25):
@@ -176,6 +193,19 @@ later (SPEC §25):
 
 ---
 
+**Post as a bot, not as you.** The loop's pull requests, review comments and
+status checks are posted as whoever is signed in to `gh` on the machine. To
+post them as a dedicated automation account instead, give that account a token
+and name the variable holding it — the name is committed, the token never is:
+
+```toml
+[github]
+identity_env = "AXIAL_BOT_GH_TOKEN"
+```
+
+Then export `AXIAL_BOT_GH_TOKEN` wherever the loop runs. `axial dev doctor`
+shows which identity the writes will use, and refuses if the variable is unset.
+
 ## 3. Check before you run
 
 ```bash
@@ -186,6 +216,15 @@ Every line should be `ok`. It names the runtime and account that would run,
 the tracker target, the actor, and — if you declared `[merge]` — whether the
 repository can do the merge you asked for. Fix anything it reports before
 running; a failure here costs nothing, a failure mid-run costs an attempt.
+
+**Know what leaves the machine.** While a worker runs, the loop publishes a
+snapshot of its worktree to your remote every minute, under
+`refs/axial/attempts/…`, so other workers can see what it is touching. The
+snapshot includes the worker's **uncommitted and untracked files**; files your
+`.gitignore` matches are left out. Anything a worker writes that must not reach
+the remote — a local secret, a large scratch file — belongs in `.gitignore`.
+`dev doctor`'s `coordination:` line says the same, and `enabled = false` under
+`[coordination]` in `.axial/dev.toml` turns it off.
 
 ---
 
