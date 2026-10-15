@@ -61,6 +61,13 @@ shows the latest one first. *SPEC §9, §16.*
 **Dispatch.** Choosing the next issue for an actor. `axial next` does it in one
 step: pick the best issue on the frontier and claim it. *SPEC §14.*
 
+**Triage hold.** An issue labelled `needs-triage`: a report nobody has triaged
+yet. Dispatch passes over it — `axial next` and the dev loop never take it —
+until a person removes the label. It is a filter, not a permission: an explicit
+`issue claim` still works. It shares one reserved-label set with `human-only`.
+Do not call it *blocked*: that word means an open dependency or the `blocked`
+status, and a held issue has neither. *SPEC §14.*
+
 **Focus.** The one issue an actor is treating as current in a given checkout.
 Harness hooks read it to know which issue a forwarded decision belongs to.
 *ADR-090.*
