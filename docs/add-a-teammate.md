@@ -56,11 +56,13 @@ same name and revoke the old one.
 4. Invite them **before** they sign in. Someone who signs in before an
    invite exists is asked whether they are joining a team or starting their
    own organization; if they choose to wait, your invite joins them at their
-   next sign-in. Someone who already has an account joins when they next sign
-   in with GitHub or approve an `axial login --github` code. The username is
-   matched regardless of capitals. (An account last signed in before v0.70.1
-   needs one fresh GitHub sign-in first: sign out at `/auth/logout`, then sign
-   in again.)
+   next sign-in. Someone who already has an account is shown your invitation
+   the next time they sign in with GitHub in a browser, and joins only if they
+   choose **Join**; approving an `axial login --github` code in the terminal
+   does not join them. If they choose **Decline**, the invite is removed and
+   you have to invite them again. The username is
+   matched regardless of capitals. If they are already signed in, they see it
+   only after signing out at `/auth/logout` and signing in again.
 5. The invite's **Status** says `waiting: @<username> hasn't signed in yet`
    until they sign in, then `joined <time>`. Only a waiting invite can be
    cancelled.
@@ -95,8 +97,11 @@ requires Go and read access to the private repository).
 
 ## Teammate: sign in as yourself
 
-1. Open **https://axial.airforge.io/** and choose **Sign in with GitHub**. The
-   invite puts you in the admin's organization.
+1. Open **https://axial.airforge.io/** and choose **Sign in with GitHub**. If
+   this is your first sign-in, the invite puts you in the admin's
+   organization. If you already have an account, axial shows the invitation
+   and you join only by choosing **Join**; **Decline** removes it, and the
+   admin has to invite you again.
 2. In a terminal:
 
    ```bash
